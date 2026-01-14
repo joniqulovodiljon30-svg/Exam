@@ -1,3 +1,4 @@
+
 import { Question, Section } from './types';
 
 const rawQuestions = [
@@ -44,7 +45,7 @@ const rawQuestions = [
   { text: "Qanday omillar ko‘nikmalarni yuzaga keltiruvchi omil hisoblanadi?", a: "takrorlash, mashq harakatlari", b: "kuchli qo‘zg‘alish", c: "bir xil yo‘nalish", d: "o‘zaro raqobat", correct: "A" },
   { text: "Ong va faoliyatning birligi deganda ……………………………… tushuniladi.", a: "ong va faoliyat bir-biriga qarama-qarshi ham emas, o‘xshash ham emas, ammo ular bir-birini taqozo qilishi", b: "ong mazmunni belgilamasligi", c: "ongning namoyon bo‘lishi", d: "ongning rivojlanishi", correct: "A" },
   { text: "Tashqi faoliyat asosida ichki psixik jarayonlarga o‘tish ro‘y bersa qanday jarayon?", a: "interiorizatsiya", b: "eksteriorizatsiya", c: "fikrlash faoliyati", d: "imajitiv faoliyat", correct: "A" },
-  { text: "Malaka bu – ………………………………………… hisoblanadi.", a: "ish – harakatlarni avtomatlashishi", b: "ko‘nikmaning paydo bo‘lishi", c: "ish – harakatlarni o‘zlashtirish jarayonidir", d: "ichki faollik", correct: "A" },
+  { text: "Malaka bu – …………………………………………………… hisoblanadi.", a: "ish – harakatlarni avtomatlashishi", b: "ko‘nikmaning paydo bo‘lishi", c: "ish – harakatlarni o‘zlashtirish jarayonidir", d: "ichki faollik", correct: "A" },
   { text: "Ongimizda shakllangan g‘oyalarni bevosita tashqi harakatlarda namoyon bo‘lishi nima?", a: "eksteriorizatsiya", b: "fikrlash faoliyati", c: "interiorizatsiya", d: "imajitiv faoliyat", correct: "A" },
   { text: "Shaxsning o‘zi, o‘z imkoniyatlari haqidagi umumlashgan tasavvurlari?", a: "o‘z-o‘ziga baho", b: "“U” obrazi", c: "shaxsning ustanovkalari", d: "dunyoqarashi", correct: "A" },
   { text: "Shaxs taraqqiyotini harakatga keltiruvchi kuchlarni aniqlang.", a: "ijtimoiy muhit, ta’lim-tarbiya va faoliyatdagi insonning faolligi", b: "ijtimoiy munosabat", c: "o‘zaro munosabatlar", d: "ijodiy faoliyatda faollik", correct: "A" },
@@ -206,7 +207,7 @@ const rawQuestions = [
   { text: "O'smirlarda qalqonsimon bez faoliyatining kuchayishi qanday holatlarni keltirib chiqaradi?", a: "Uyquchanlik", b: "Asabiylashish, injiqlik, kayfiyat o'zgarishi", c: "Xotirjamlik", d: "Kuchli ishtaha", correct: "B" },
   { text: "Bolada \"Men\"likni anglash necha yoshdan boshlanadi?", a: "1 yosh", b: "3 yoshdan", c: "5 yosh", d: "7 yosh", correct: "B" },
   { text: "Yangitug'ilgan chaqaloq vazni me'yorga ko'ra necha gramm bo'ladi?", a: "1500-2000", b: "2000-2500", c: "2500-4000 gramm", d: "4000-5000", correct: "C" },
-  { text: "7 yoshda bola lug'atining so'z boyligi nechta so'zni tashkil etadi?", a: "500-1000", b: "1000-1500", c: "2000-3000", d: "3000-4000 so'z", correct: "D" },
+  { text: "7 yoshda bola lug'atining so'z boyligi nechta so'zni tashkil etadi?", a: "500-1000", b: "1000-1500", c: "2000-3000", d: "3000-4000 so'z", correct: "C" },
   { text: "5-6 yoshli bolaga xos tafakkur qaysi to'g'ri ko'rsatilgan?", a: "Abstrakt-mantiqiy", b: "Faqat harakatli", c: "Ko'rgazmali-obrazli va so'z-mantiqiy", d: "Tanqdiiy", correct: "C" },
   { text: "Akseleratsiya – bu...", a: "Sekinlashish", b: "Bolalar va o'smirlarning jismoniy va psixik rivojlanishining tezlashishi", c: "To'xtash", d: "Genetika mutatsiya", correct: "B" },
   { text: "Psixogerantologiya – bu...", a: "Bolalar psixologiyasi", b: "Keksa yoshdagi odamlar psixologiyasini o'rganuvchi fan", c: "Sport psixologiyasi", d: "Uy hayvonlari psixologiyasi", correct: "B" },
