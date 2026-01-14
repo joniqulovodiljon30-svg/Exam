@@ -1,10 +1,7 @@
-
 import { Question } from './types';
 
-// Linear Congruential Generator (LCG) for seeded randomness
-// This provides a consistent sequence of random numbers based on a seed
+// Linear Congruential Generator (Seeded Random)
 const createLCG = (seed: number) => {
-  // Constants for LCG (using widely used values)
   const a = 1664525;
   const c = 1013904223;
   const m = 4294967296;
@@ -12,7 +9,6 @@ const createLCG = (seed: number) => {
 
   return () => {
     state = (a * state + c) % m;
-    // Return a float between 0 and 1
     return Math.abs(state / m);
   };
 };
@@ -23,75 +19,63 @@ export const getQuestionsForVariant = (
   endId: number, 
   variantId: number
 ): Question[] => {
-  // 1. Filter questions for the specific topic (Section)
-  const topicQuestions = allQuestions.filter(q => q.id >= startId && q.id <= endId);
+  // 1. To'g'ri bo'limdagi savollarni ajratish
+  let filtered = allQuestions.filter(q => q.id >= startId && q.id <= endId);
 
-  // 2. If Variant 1, return original order and original options
-  if (variantId === 1) {
-    return topicQuestions.sort((a, b) => a.id - b.id).map(q => ({
-        ...q,
-        // Ensure options are in original A, B, C, D order by creating a fresh object
-        options: { ...q.options } 
-    }));
+  // 2. Savollar tartibini aralashtirish (Sec 1 dan boshqa hamma variantlar uchun)
+  if (variantId !== 1) {
+    const questionsToShuffle = filtered.map(q => ({...q}));
+    const rngOrder = createLCG((variantId * 77777) + (startId * 123));
+    for (let i = questionsToShuffle.length - 1; i > 0; i--) {
+      const j = Math.floor(rngOrder() * (i + 1));
+      [questionsToShuffle[i], questionsToShuffle[j]] = [questionsToShuffle[j], questionsToShuffle[i]];
+    }
+    filtered = questionsToShuffle;
+  } else {
+    // Sec 1 uchun tartibni saqlaymiz, lekin yangi obyekt yaratamiz
+    filtered = filtered.sort((a, b) => a.id - b.id).map(q => ({...q}));
   }
 
-  // 3. If Variant 2-7, Shuffle Questions Order AND Options
-  
-  // Create a deep-ish clone for shuffling to prevent mutating original data
-  let shuffledQuestions = topicQuestions.map(q => ({...q, options: {...q.options}}));
-
-  // Initialize RNG with a seed specific to this variant and section range.
-  // Using a larger multiplier helps separate the seeds for adjacent variants.
-  const rngOrder = createLCG((variantId * 7919) + (startId * 104729));
-
-  // Fisher-Yates shuffle for Question Order
-  for (let i = shuffledQuestions.length - 1; i > 0; i--) {
-    const j = Math.floor(rngOrder() * (i + 1));
-    [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
-  }
-
-  // Shuffle the OPTIONS for each question
-  return shuffledQuestions.map((q) => {
-    const correctText = q.options[q.correctAnswer];
-    
-    const optionsArray = [
+  // 3. Javob variantlarini (A, B, C, D) MAJBURIY aralashtirish (Hamma variantlar uchun)
+  return filtered.map((q) => {
+    const originalOptions = [
       { key: 'A', text: q.options.A },
       { key: 'B', text: q.options.B },
       { key: 'C', text: q.options.C },
       { key: 'D', text: q.options.D },
     ];
 
-    // Seed for options needs to be unique per question + variant
-    const rngOptions = createLCG(q.id * variantId * 1234567 + 987654321);
+    const correctText = q.options[q.correctAnswer];
 
-    // Fisher-Yates shuffle for Options
-    for (let i = optionsArray.length - 1; i > 0; i--) {
-      const j = Math.floor(rngOptions() * (i + 1));
-      [optionsArray[i], optionsArray[j]] = [optionsArray[j], optionsArray[i]];
+    // Har bir savol va har bir variant uchun takrorlanmas "seed"
+    const seed = (q.id * 1000) + (variantId * 10) + 42;
+    const rng = createLCG(seed);
+
+    // Shuffle options array
+    for (let i = originalOptions.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [originalOptions[i], originalOptions[j]] = [originalOptions[j], originalOptions[i]];
     }
 
+    // Yangi variantlar obyektini qurish
     const newOptions = {
-      A: optionsArray[0].text,
-      B: optionsArray[1].text,
-      C: optionsArray[2].text,
-      D: optionsArray[3].text,
+      A: originalOptions[0].text,
+      B: originalOptions[1].text,
+      C: originalOptions[2].text,
+      D: originalOptions[3].text,
     };
 
-    // Find new key for the correct text
-    let newCorrectAnswer: 'A' | 'B' | 'C' | 'D' = 'A';
-    optionsArray.forEach((opt, index) => {
-      if (opt.text === correctText) {
-        if (index === 0) newCorrectAnswer = 'A';
-        if (index === 1) newCorrectAnswer = 'B';
-        if (index === 2) newCorrectAnswer = 'C';
-        if (index === 3) newCorrectAnswer = 'D';
-      }
-    });
+    // To'g'ri javob yangi qayerga ko'chganini aniqlash
+    let newCorrectKey: 'A' | 'B' | 'C' | 'D' = 'A';
+    if (originalOptions[0].text === correctText) newCorrectKey = 'A';
+    else if (originalOptions[1].text === correctText) newCorrectKey = 'B';
+    else if (originalOptions[2].text === correctText) newCorrectKey = 'C';
+    else if (originalOptions[3].text === correctText) newCorrectKey = 'D';
 
     return {
       ...q,
       options: newOptions,
-      correctAnswer: newCorrectAnswer,
+      correctAnswer: newCorrectKey
     };
   });
 };
