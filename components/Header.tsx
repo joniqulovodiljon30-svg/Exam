@@ -21,9 +21,6 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick }) => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <div class="social-links">
-                    <a href="https://t.me/Mr_Odilxon" class="social-link" target="_blank">
-                        <i class="fab fa-telegram"></i>
           <a 
             href="https://t.me/Mr_Odilxon" 
             target="_blank" 
