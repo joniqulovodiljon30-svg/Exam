@@ -1,5 +1,7 @@
 {
   "name": "ExamPro - Professional Test Platform",
   "description": "A modern, responsive online exam platform featuring sectioned testing, real-time feedback, and progress tracking for 206 practice questions.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }
