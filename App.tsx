@@ -5,18 +5,14 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import SectionSelector from './components/SectionSelector';
 import ExamContainer from './components/ExamContainer';
+import MultiplayerGame from './components/MultiplayerGame';
 import { getQuestionsForVariant } from './utils';
-import { GoogleGenAI } from "@google/genai";
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('LANDING');
   const [activeSection, setActiveSection] = useState<Section | null>(null);
   const [activeVariant, setActiveVariant] = useState<number>(1);
   
-  // Maps Grounding State
-  const [isSearchingMap, setIsSearchingMap] = useState(false);
-  const [mapResults, setMapResults] = useState<{text: string, links: any[]} | null>(null);
-
   const [allUserAnswers, setAllUserAnswers] = useState<Record<string, UserAnswer>>({});
 
   const currentExamQuestions = useMemo(() => {
@@ -78,7 +74,6 @@ const App: React.FC = () => {
     setCurrentView('LANDING');
     setActiveSection(null);
     setActiveVariant(1);
-    setMapResults(null);
   };
 
   const handleAnswer = (questionId: number, selected: 'A' | 'B' | 'C' | 'D') => {
@@ -101,46 +96,6 @@ const App: React.FC = () => {
     if (confirm("Haqiqatan ham barcha natijalarni o'chirib tashlamoqchimisiz?")) {
       setAllUserAnswers({});
       localStorage.removeItem('exam_pro_v5');
-    }
-  };
-
-  const findPsychologistsNearby = async () => {
-    setIsSearchingMap(true);
-    setMapResults(null);
-    
-    try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
-
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: "Menga yaqin atrofdagi eng yaxshi psixologik markazlar va psixologlar haqida ma'lumot ber. Ularning manzili va reytingini ham ayt.",
-        config: {
-          tools: [{ googleMaps: {} }, { googleSearch: {} }],
-          toolConfig: {
-            retrievalConfig: {
-              latLng: {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-              }
-            }
-          }
-        },
-      });
-
-      const text = String(response.text || "Ma'lumot topilmadi.");
-      const chunks = Array.isArray(response.candidates?.[0]?.groundingMetadata?.groundingChunks) 
-        ? response.candidates?.[0]?.groundingMetadata?.groundingChunks 
-        : [];
-      
-      setMapResults({ text, links: chunks });
-    } catch (error) {
-      console.error("Map search error:", error);
-      alert("Joylashuvni aniqlashda yoki qidiruvda xatolik yuz berdi.");
-    } finally {
-      setIsSearchingMap(false);
     }
   };
 
@@ -171,68 +126,20 @@ const App: React.FC = () => {
               
               <div className="flex flex-wrap justify-center gap-2 pt-2">
                 <button 
+                  onClick={() => setCurrentView('MULTIPLAYER')}
+                  className="px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all active-press flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                  Do'stlar bilan o'ynash (Quiz)
+                </button>
+                <button 
                   onClick={clearProgress}
                   className="px-4 py-2 bg-white border border-red-100 text-red-500 hover:bg-red-50 rounded-xl text-xs font-bold transition-all active-press"
                 >
                   Progressni tozalash
                 </button>
-                <button 
-                  onClick={findPsychologistsNearby}
-                  disabled={isSearchingMap}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all active-press shadow-md shadow-indigo-100 disabled:opacity-50"
-                >
-                  {isSearchingMap ? 'Qidirilmoqda...' : 'Yaqin atrofdagi psixologlar'}
-                </button>
               </div>
             </div>
-
-            {mapResults && (
-              <div className="bg-white p-4 rounded-2xl border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-bold text-indigo-700 text-sm">Xaritadan natijalar:</h3>
-                  <button onClick={() => setMapResults(null)} className="text-slate-400 p-1">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
-                </div>
-                <div className="grounding-text text-slate-700 mb-4 whitespace-pre-wrap">
-                  {String(mapResults.text)}
-                </div>
-                {mapResults.links.length > 0 && (
-                  <div className="space-y-2 border-t pt-3">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Manbalar va xarita:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {mapResults.links.map((chunk, idx) => {
-                        const uri = chunk.maps?.uri || chunk.web?.uri;
-                        const titleRaw = chunk.maps?.title || chunk.web?.title || `Manba ${idx + 1}`;
-                        
-                        let title: string;
-                        if (typeof titleRaw === 'string') {
-                          title = titleRaw;
-                        } else if (titleRaw && typeof titleRaw === 'object') {
-                          title = titleRaw.text || JSON.stringify(titleRaw);
-                        } else {
-                          title = String(titleRaw);
-                        }
-                        
-                        if (!uri) return null;
-                        return (
-                          <a 
-                            key={idx} 
-                            href={uri} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-[10px] font-bold px-2 py-1 bg-slate-100 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-1"
-                          >
-                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            {title}
-                          </a>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
 
             <SectionSelector 
               sections={SECTIONS} 
@@ -240,6 +147,8 @@ const App: React.FC = () => {
               userAnswers={dashboardStats}
             />
           </div>
+        ) : currentView === 'MULTIPLAYER' ? (
+          <MultiplayerGame onBack={handleBackToDashboard} />
         ) : (
           <ExamContainer 
             key={`${activeSection?.id}-${activeVariant}`}

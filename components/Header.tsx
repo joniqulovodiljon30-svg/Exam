@@ -21,14 +21,9 @@ const Header: React.FC<HeaderProps> = ({ onLogoClick }) => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <a 
-            href="https://t.me/Mr_Odilxon" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-indigo-600 font-bold text-sm md:text-base hover:text-indigo-800 transition-colors active-press"
-          >
+          <span className="text-indigo-600 font-bold text-sm md:text-base">
             Made by @Mr_Odilxon
-          </a>
+          </span>
           <div className="h-8 w-[1px] bg-slate-200 hidden md:block"></div>
           <div className="text-[10px] px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full font-bold uppercase tracking-wider hidden sm:block">
             Premium Access

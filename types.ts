@@ -25,4 +25,23 @@ export interface UserAnswer {
   isCorrect: boolean | null;
 }
 
-export type AppView = 'LANDING' | 'EXAM';
+export type AppView = 'LANDING' | 'EXAM' | 'MULTIPLAYER';
+
+export interface Player {
+  id: string;
+  name: string;
+  isReady: boolean;
+  score: number;
+  totalTime: number; // in seconds
+  currentAnswer: 'A' | 'B' | 'C' | 'D' | null;
+  avatarColor: string;
+  isBot?: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  playerId: string;
+  playerName: string;
+  text: string;
+  timestamp: number;
+}
