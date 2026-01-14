@@ -6,45 +6,63 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import SectionSelector from './components/SectionSelector';
 import ExamContainer from './components/ExamContainer';
-import { shuffleQuestions } from './utils';
+import { getQuestionsForVariant } from './utils';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('LANDING');
   const [activeSection, setActiveSection] = useState<Section | null>(null);
+  const [activeVariant, setActiveVariant] = useState<number>(1); // Default to Variant 1 (Sec 1)
   const [userAnswers, setUserAnswers] = useState<Record<number, UserAnswer>>({});
 
-  // Memoize shuffled questions so they don't reshuffle on every render
-  const allQuestions = useMemo(() => shuffleQuestions(RAW_QUESTIONS), []);
+  // Generate the specific list of questions for the current Topic (Section) and Variant
+  const currentExamQuestions = useMemo(() => {
+    if (!activeSection) return [];
+    return getQuestionsForVariant(
+      RAW_QUESTIONS, 
+      activeSection.startId, 
+      activeSection.endId, 
+      activeVariant
+    );
+  }, [activeSection, activeVariant]);
 
-  // Persistence: Load progress from localStorage
-  // Changed key to 'exam_progress_v2' to invalidate old "All A" answers
+  // Persistence: Load progress
   useEffect(() => {
-    const saved = localStorage.getItem('exam_progress_v2');
+    const saved = localStorage.getItem('exam_progress_v3');
     if (saved) {
       setUserAnswers(JSON.parse(saved));
     }
   }, []);
 
-  // Save progress whenever userAnswers changes
+  // Save progress
   useEffect(() => {
     if (Object.keys(userAnswers).length > 0) {
-      localStorage.setItem('exam_progress_v2', JSON.stringify(userAnswers));
+      localStorage.setItem('exam_progress_v3', JSON.stringify(userAnswers));
     }
   }, [userAnswers]);
 
   const handleSelectSection = (section: Section) => {
     setActiveSection(section);
+    setActiveVariant(1); // Reset to Sec 1 when entering a new topic
     setCurrentView('EXAM');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleVariantSwitch = (variantId: number) => {
+    // Directly switch variant without confirmation to ensure UI updates immediately
+    // and provides a better user experience for rapid switching
+    setActiveVariant(variantId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackToDashboard = () => {
     setCurrentView('LANDING');
     setActiveSection(null);
+    setActiveVariant(1);
   };
 
   const handleAnswer = (questionId: number, selected: 'A' | 'B' | 'C' | 'D') => {
-    const question = allQuestions.find(q => q.id === questionId);
+    // Find the question in the CURRENT variant set to check correctness
+    const question = currentExamQuestions.find(q => q.id === questionId);
     if (!question) return;
 
     setUserAnswers(prev => ({
@@ -60,7 +78,7 @@ const App: React.FC = () => {
   const clearProgress = () => {
     if (confirm("Are you sure you want to reset all your progress?")) {
       setUserAnswers({});
-      localStorage.removeItem('exam_progress_v2');
+      localStorage.removeItem('exam_progress_v3');
     }
   };
 
@@ -76,8 +94,7 @@ const App: React.FC = () => {
                 Exam Practice Dashboard
               </h1>
               <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                Select a section to begin your practice. Your progress is automatically saved.
-                Total of 206 questions across 7 modules.
+                Select a topic to begin. Inside each topic, you can choose from 7 different randomized variants (Sec 1 - Sec 7).
               </p>
               <button 
                 onClick={clearProgress}
@@ -95,12 +112,16 @@ const App: React.FC = () => {
           </div>
         ) : (
           <ExamContainer 
+            // Key is crucial here! It forces the component to remount when variant changes,
+            // ensuring all internal state (like current question index) is reset completely.
+            key={`${activeSection?.id}-${activeVariant}`}
             section={activeSection!} 
-            questions={allQuestions.filter(q => q.id >= activeSection!.startId && q.id <= activeSection!.endId)}
+            variant={activeVariant}
+            questions={currentExamQuestions}
             userAnswers={userAnswers}
             onAnswer={handleAnswer}
             onBack={handleBackToDashboard}
-            onSectionSwitch={handleSelectSection}
+            onVariantSwitch={handleVariantSwitch}
           />
         )}
       </main>
