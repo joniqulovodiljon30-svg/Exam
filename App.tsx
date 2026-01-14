@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { SECTIONS, QUESTIONS as RAW_QUESTIONS } from './data';
 import { Section, UserAnswer, AppView } from './types';
@@ -110,15 +109,12 @@ const App: React.FC = () => {
     setMapResults(null);
     
     try {
-      // Get User Location
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
 
-      // Always initialize GoogleGenAI inside the event handler to ensure correct key context
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
-        // Maps grounding requires Gemini 2.5 series models
         model: "gemini-2.5-flash",
         contents: "Menga yaqin atrofdagi eng yaxshi psixologik markazlar va psixologlar haqida ma'lumot ber. Ularning manzili va reytingini ham ayt.",
         config: {
@@ -134,8 +130,11 @@ const App: React.FC = () => {
         },
       });
 
-      const text = response.text || "Ma'lumot topilmadi.";
-      const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      // Ensure the text property is treated as a string
+      const text = String(response.text || "Ma'lumot topilmadi.");
+      const chunks = Array.isArray(response.candidates?.[0]?.groundingMetadata?.groundingChunks) 
+        ? response.candidates?.[0]?.groundingMetadata?.groundingChunks 
+        : [];
       
       setMapResults({ text, links: chunks });
     } catch (error) {
@@ -148,7 +147,6 @@ const App: React.FC = () => {
 
   const dashboardStats = useMemo(() => {
     const stats: Record<number, UserAnswer> = {};
-    // Fix: Cast Object.values results to UserAnswer[] to fix 'unknown' type property access errors.
     (Object.values(allUserAnswers) as UserAnswer[]).forEach(ans => {
       if (!stats[ans.questionId] || ans.isCorrect) {
         stats[ans.questionId] = ans;
@@ -198,7 +196,7 @@ const App: React.FC = () => {
                   </button>
                 </div>
                 <div className="grounding-text text-slate-700 mb-4 whitespace-pre-wrap">
-                  {mapResults.text}
+                  {String(mapResults.text)}
                 </div>
                 {mapResults.links.length > 0 && (
                   <div className="space-y-2 border-t pt-3">
@@ -206,7 +204,18 @@ const App: React.FC = () => {
                     <div className="flex flex-wrap gap-2">
                       {mapResults.links.map((chunk, idx) => {
                         const uri = chunk.maps?.uri || chunk.web?.uri;
-                        const title = chunk.maps?.title || chunk.web?.title || `Manba ${idx + 1}`;
+                        const titleRaw = chunk.maps?.title || chunk.web?.title || `Manba ${idx + 1}`;
+                        
+                        // Strict primitive check to avoid React rendering an object
+                        let title: string;
+                        if (typeof titleRaw === 'string') {
+                          title = titleRaw;
+                        } else if (titleRaw && typeof titleRaw === 'object') {
+                          title = titleRaw.text || JSON.stringify(titleRaw);
+                        } else {
+                          title = String(titleRaw);
+                        }
+                        
                         if (!uri) return null;
                         return (
                           <a 
