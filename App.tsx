@@ -130,7 +130,6 @@ const App: React.FC = () => {
         },
       });
 
-      // Ensure the text property is treated as a string
       const text = String(response.text || "Ma'lumot topilmadi.");
       const chunks = Array.isArray(response.candidates?.[0]?.groundingMetadata?.groundingChunks) 
         ? response.candidates?.[0]?.groundingMetadata?.groundingChunks 
@@ -206,7 +205,6 @@ const App: React.FC = () => {
                         const uri = chunk.maps?.uri || chunk.web?.uri;
                         const titleRaw = chunk.maps?.title || chunk.web?.title || `Manba ${idx + 1}`;
                         
-                        // Strict primitive check to avoid React rendering an object
                         let title: string;
                         if (typeof titleRaw === 'string') {
                           title = titleRaw;
