@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Section, Question, UserAnswer } from '../types';
-import QuestionCard from '../QuestionCard';
+import QuestionCard from './QuestionCard';
 
 interface ExamContainerProps {
   section: Section;
@@ -91,8 +91,8 @@ const ExamContainer: React.FC<ExamContainerProps> = ({
       {/* Compact Header for Mobile */}
       <div className="glass p-3 rounded-2xl flex flex-col gap-3 relative z-10">
         <div className="flex items-center justify-between">
-          <button type="button" onClick={onBack} className="p-2 bg-slate-100 rounded-lg text-slate-600 active-press hover:bg-slate-200 transition-colors">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <button type="button" onClick={onBack} className="p-2 bg-slate-100 rounded-lg text-slate-600 active-press hover:bg-slate-200 transition-colors cursor-pointer relative z-20">
+            <svg className="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </button>
           <div className="text-center">
             <h2 className="text-sm font-bold text-slate-800 leading-tight line-clamp-1">{section.name}</h2>

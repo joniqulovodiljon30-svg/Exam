@@ -343,7 +343,7 @@ const MultiplayerGame: React.FC<MultiplayerGameProps> = ({ onBack }) => {
             // 60-70% chance to be correct
             const isCorrect = Math.random() > 0.35;
             const options = ['A', 'B', 'C', 'D'] as const;
-            let answer: 'A' | 'B' | 'C' | 'D';
+            let answer: string;
 
             if (isCorrect) {
                answer = currentQ.correctAnswer;
