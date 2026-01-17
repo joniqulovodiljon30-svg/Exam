@@ -17,13 +17,19 @@ export const getQuestionsForVariant = (
   allQuestions: Question[], 
   startId: number, 
   endId: number, 
-  variantId: number
+  variantId: number,
+  limit?: number // New parameter to limit the result count (e.g., 30 out of 200)
 ): Question[] => {
   // 1. To'g'ri bo'limdagi savollarni ajratish
   let filtered = allQuestions.filter(q => q.id >= startId && q.id <= endId);
 
-  // 2. Savollar tartibini aralashtirish (Sec 1 dan boshqa hamma variantlar uchun)
-  if (variantId !== 1) {
+  // Determine if this is a "Random Mode" (where range is big but limit is small)
+  const isRandomMode = limit && limit < filtered.length;
+
+  // 2. Savollar tartibini aralashtirish
+  // Agar Random Mode bo'lsa (Sec 8) yoki Variant != 1 bo'lsa, aralashtiramiz.
+  // Sec 1 da odatiy tartib (agar random mode bo'lmasa)
+  if (variantId !== 1 || isRandomMode) {
     const questionsToShuffle = filtered.map(q => ({...q}));
     const rngOrder = createLCG((variantId * 77777) + (startId * 123));
     for (let i = questionsToShuffle.length - 1; i > 0; i--) {
@@ -32,20 +38,26 @@ export const getQuestionsForVariant = (
     }
     filtered = questionsToShuffle;
   } else {
-    // Sec 1 uchun tartibni saqlaymiz, lekin yangi obyekt yaratamiz
+    // Sec 1 (va Random Mode EMAS) uchun tartibni saqlaymiz
     filtered = filtered.sort((a, b) => a.id - b.id).map(q => ({...q}));
   }
 
-  // 3. Javob variantlarini (A, B, C, D) MAJBURIY aralashtirish (Hamma variantlar uchun)
-  return filtered.map((q) => {
-    const originalOptions = [
-      { key: 'A', text: q.options.A },
-      { key: 'B', text: q.options.B },
-      { key: 'C', text: q.options.C },
-      { key: 'D', text: q.options.D },
-    ];
+  // LIMIT LOGIC: Agar limit berilgan bo'lsa va ro'yxat uzunroq bo'lsa, kesib olamiz
+  if (limit && filtered.length > limit) {
+    filtered = filtered.slice(0, limit);
+  }
 
-    const correctText = q.options[q.correctAnswer];
+  // 3. Javob variantlarini aralashtirish (Hamma variantlar uchun)
+  return filtered.map((q) => {
+    // Variantlar obyektini arrayga o'tkazamiz
+    const originalOptions = Object.keys(q.options).map(key => ({
+      key,
+      text: q.options[key]
+    }));
+
+    // To'g'ri javob matnlarini aniqlash (Ko'p tanlovli bo'lishi mumkin)
+    const correctKeys = q.correctAnswer.split(''); // ['A', 'B']
+    const correctTexts = correctKeys.map(k => q.options[k]);
 
     // Har bir savol va har bir variant uchun takrorlanmas "seed"
     const seed = (q.id * 1000) + (variantId * 10) + 42;
@@ -57,25 +69,35 @@ export const getQuestionsForVariant = (
       [originalOptions[i], originalOptions[j]] = [originalOptions[j], originalOptions[i]];
     }
 
-    // Yangi variantlar obyektini qurish
-    const newOptions = {
-      A: originalOptions[0].text,
-      B: originalOptions[1].text,
-      C: originalOptions[2].text,
-      D: originalOptions[3].text,
-    };
+    // Yangi variantlar obyektini qurish (A, B, C, D...)
+    const newOptions: Record<string, string> = {};
+    const baseKeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']; // Yetarlicha uzun
+    
+    originalOptions.forEach((opt, index) => {
+      if (index < baseKeys.length) {
+        newOptions[baseKeys[index]] = opt.text;
+      }
+    });
 
     // To'g'ri javob yangi qayerga ko'chganini aniqlash
-    let newCorrectKey: 'A' | 'B' | 'C' | 'D' = 'A';
-    if (originalOptions[0].text === correctText) newCorrectKey = 'A';
-    else if (originalOptions[1].text === correctText) newCorrectKey = 'B';
-    else if (originalOptions[2].text === correctText) newCorrectKey = 'C';
-    else if (originalOptions[3].text === correctText) newCorrectKey = 'D';
+    // Yangi kalitlarni topamiz
+    let newCorrectString = "";
+    
+    // Asl matnlar qaysi yangi kalitlarga to'g'ri kelishini topamiz
+    correctTexts.forEach(txt => {
+       const foundKey = Object.keys(newOptions).find(key => newOptions[key] === txt);
+       if (foundKey) {
+         newCorrectString += foundKey;
+       }
+    });
+
+    // Kalitlarni alifbo tartibida saralash (masalan "BA" -> "AB")
+    newCorrectString = newCorrectString.split('').sort().join('');
 
     return {
       ...q,
       options: newOptions,
-      correctAnswer: newCorrectKey
+      correctAnswer: newCorrectString
     };
   });
 };

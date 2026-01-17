@@ -7,7 +7,7 @@ interface ExamContainerProps {
   variant: number;
   questions: Question[];
   userAnswers: Record<number, UserAnswer>;
-  onAnswer: (questionId: number, selected: 'A' | 'B' | 'C' | 'D') => void;
+  onAnswer: (questionId: number, selected: string) => void;
   onBack: () => void;
   onVariantSwitch: (variantId: number) => void;
 }

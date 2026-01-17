@@ -1,14 +1,12 @@
 
+export type QuestionType = 'single' | 'multiple' | 'boolean';
+
 export interface Question {
   id: number;
   text: string;
-  options: {
-    A: string;
-    B: string;
-    C: string;
-    D: string;
-  };
-  correctAnswer: 'A' | 'B' | 'C' | 'D';
+  type: QuestionType;
+  options: Record<string, string>;
+  correctAnswer: string; // "A" or "ABC" or "AB"
 }
 
 export interface Section {
@@ -17,11 +15,12 @@ export interface Section {
   startId: number;
   endId: number;
   totalQuestions: number;
+  category?: 'standard' | 'azimxon' | 'islomboy'; // Added islomboy
 }
 
 export interface UserAnswer {
   questionId: number;
-  selectedOption: 'A' | 'B' | 'C' | 'D' | null;
+  selectedOption: string | null; // Stores "A" or "ABC"
   isCorrect: boolean | null;
 }
 
@@ -33,7 +32,7 @@ export interface Player {
   isReady: boolean;
   score: number;
   totalTime: number; // in seconds
-  currentAnswer: 'A' | 'B' | 'C' | 'D' | null;
+  currentAnswer: string | null;
   avatarColor: string;
   isBot?: boolean;
 }
