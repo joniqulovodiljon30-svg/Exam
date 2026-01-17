@@ -121,22 +121,21 @@ const App: React.FC = () => {
   };
 
   const handleBackToDashboard = () => {
-    // If we have history state (meaning we navigated here within the app), use back()
-    if (window.history.state && window.history.length > 1) {
-      window.history.back();
-    } else {
-      // Direct link open or no history, force replaceState to landing
-      const params = new URLSearchParams(window.location.search);
-      params.delete('section');
-      params.delete('room');
-      // Keep mode
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      window.history.replaceState({}, '', newUrl);
-      
-      setCurrentView('LANDING');
-      setActiveSection(null);
-      setActiveVariant(1);
-    }
+    // Explicitly update state to LANDING to guarantee navigation works
+    // regardless of browser history state.
+    setCurrentView('LANDING');
+    setActiveSection(null);
+    setActiveVariant(1);
+    
+    // Update URL to remove section/room params but keep mode
+    const params = new URLSearchParams(window.location.search);
+    params.delete('section');
+    params.delete('room');
+    
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    
+    // Use pushState so browser "Back" button works naturally (returns to Exam if pressed later)
+    window.history.pushState({}, '', newUrl);
   };
 
   const cycleAppMode = () => {
