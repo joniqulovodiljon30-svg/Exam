@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Section, UserAnswer } from '../types';
 
@@ -18,7 +17,20 @@ const SectionSelector: React.FC<SectionSelectorProps> = ({ sections, onSelect, u
         if (userAnswers[id].isCorrect) correct++;
       }
     }
-    return { answered, correct, percentage: Math.round((answered / section.totalQuestions) * 100) };
+    
+    // For Random/Exam sections, the pool (range) is larger than the test limit (totalQuestions).
+    // In this case, we calculate percentage based on the TOTAL POOL size to show mastery,
+    // not just 100% of a single 30-question run.
+    const poolSize = section.endId - section.startId + 1;
+    const isRandomSection = poolSize > section.totalQuestions;
+    const denominator = isRandomSection ? poolSize : section.totalQuestions;
+
+    return { 
+      answered, 
+      correct, 
+      percentage: Math.min(100, Math.round((answered / denominator) * 100)),
+      poolSize: denominator
+    };
   };
 
   return (
@@ -37,7 +49,7 @@ const SectionSelector: React.FC<SectionSelectorProps> = ({ sections, onSelect, u
                   {section.name}
                 </h3>
                 <p className="text-slate-400 text-sm font-medium">
-                  Questions {section.startId} - {section.endId}
+                  Savollar {section.startId} - {section.endId}
                 </p>
               </div>
               <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
@@ -50,10 +62,10 @@ const SectionSelector: React.FC<SectionSelectorProps> = ({ sections, onSelect, u
             <div className="space-y-2">
               <div className="flex justify-between items-end">
                 <span className="text-sm font-bold text-slate-700">
-                  Progress
+                  Jarayon
                 </span>
                 <span className="text-xs font-bold text-indigo-600">
-                  {stats.answered} / {section.totalQuestions}
+                  {stats.answered} / {stats.poolSize}
                 </span>
               </div>
               <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -63,7 +75,7 @@ const SectionSelector: React.FC<SectionSelectorProps> = ({ sections, onSelect, u
                 />
               </div>
               <div className="flex justify-between text-[10px] text-slate-400 font-bold uppercase tracking-widest pt-2">
-                <span>Completed</span>
+                <span>Bajarildi</span>
                 <span>{stats.percentage}%</span>
               </div>
             </div>

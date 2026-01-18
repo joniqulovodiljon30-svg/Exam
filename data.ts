@@ -298,7 +298,7 @@ export const SECTIONS: Section[] = [
   { id: 102, name: "Uskunalar va Yuk Ko'tarish (A)", startId: 330, endId: 346, totalQuestions: 17, category: 'azimxon' },
   { id: 103, name: "Elektr va Portlash Xavfsizligi (A)", startId: 347, endId: 362, totalQuestions: 16, category: 'azimxon' },
   { id: 104, name: "Transport va Boshqaruv (A)", startId: 363, endId: 379, totalQuestions: 17, category: 'azimxon' },
-  { id: 105, name: "A-TOIFA TO'LIQ IMTIHON", startId: 301, endId: 379, totalQuestions: 79, category: 'azimxon' },
+  { id: 105, name: "A-TOIFA RANDOM (30 talik)", startId: 301, endId: 364, totalQuestions: 30, category: 'azimxon' },
 
   // --- Islomboy Mode Sections ---
   { id: 201, name: "Umumiy Xavfsizlik Qoidalari", startId: 1001, endId: 1050, totalQuestions: 50, category: 'islomboy' },
@@ -306,5 +306,5 @@ export const SECTIONS: Section[] = [
   { id: 203, name: "Transport va Yo'l Harakati", startId: 1165, endId: 1181, totalQuestions: 17, category: 'islomboy' },
   { id: 204, name: "Texnik Xavfsizlik (T/N)", startId: 1054, endId: 1250, totalQuestions: 30, category: 'islomboy' },
   { id: 205, name: "Transport Qoidalari (T/N)", startId: 1182, endId: 1200, totalQuestions: 19, category: 'islomboy' },
-  { id: 206, name: "ISLOMBOY IMTIHON (Random 50)", startId: 1001, endId: 1250, totalQuestions: 50, category: 'islomboy' },
+  { id: 206, name: "ISLOMBOY RANDOM (30 talik)", startId: 1001, endId: 1250, totalQuestions: 30, category: 'islomboy' },
 ];
