@@ -346,7 +346,7 @@ export const SECTIONS: Section[] = [
   { id: 102, name: "Uskunalar va Yuk Ko'tarish (A)", startId: 330, endId: 346, totalQuestions: 17, category: 'azimxon' },
   { id: 103, name: "Elektr va Portlash Xavfsizligi (A)", startId: 347, endId: 362, totalQuestions: 16, category: 'azimxon' },
   { id: 104, name: "Transport va Boshqaruv (A)", startId: 363, endId: 379, totalQuestions: 17, category: 'azimxon' },
-  { id: 105, name: "ARALASH QOIDABUZARLIKLAR (Random 30)", startId: 301, endId: 400, totalQuestions: 30, category: 'azimxon' },
+  { id: 105, name: "KATTA IMTIHON (Barchasidan Random 30)", startId: 3, endId: 400, totalQuestions: 30, category: 'azimxon' },
 
   // --- Islomboy Mode Sections ---
   { id: 201, name: "Umumiy Xavfsizlik Qoidalari", startId: 1001, endId: 1050, totalQuestions: 50, category: 'islomboy' },
