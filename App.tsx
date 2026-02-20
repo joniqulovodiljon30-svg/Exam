@@ -257,7 +257,7 @@ const App: React.FC = () => {
               </h1>
               <p className="text-sm md:text-base text-slate-500 max-w-xl mx-auto font-medium">
                 {appMode === 'azimxon' 
-                  ? "Conch Cement xavfsizlik qoidabuzarliklari (A-sinf) bo'yicha maxsus testlar."
+                  ? "Conch Cement xavfsizlik qoidabuzarliklari (A-B-C-D sinf) bo'yicha maxsus testlar."
                   : appMode === 'islomboy'
                   ? "Toshkent Conch Cement xodimlari uchun maxsus xavfsizlik va yo'l harakati qoidalari testlari."
                   : "Xavfsizlik qoidalari, yong'in xavfsizligi va birinchi yordam bo'yicha testlar."}
