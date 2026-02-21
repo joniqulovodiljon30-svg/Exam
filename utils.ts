@@ -27,20 +27,14 @@ export const getQuestionsForVariant = (
   const isRandomMode = limit && limit < filtered.length;
 
   // 2. Savollar tartibini aralashtirish
-  // Agar Random Mode bo'lsa (Sec 8) yoki Variant != 1 bo'lsa, aralashtiramiz.
-  // Sec 1 da odatiy tartib (agar random mode bo'lmasa)
-  if (variantId !== 1 || isRandomMode) {
-    const questionsToShuffle = filtered.map(q => ({...q}));
-    const rngOrder = createLCG((variantId * 77777) + (startId * 123));
-    for (let i = questionsToShuffle.length - 1; i > 0; i--) {
-      const j = Math.floor(rngOrder() * (i + 1));
-      [questionsToShuffle[i], questionsToShuffle[j]] = [questionsToShuffle[j], questionsToShuffle[i]];
-    }
-    filtered = questionsToShuffle;
-  } else {
-    // Sec 1 (va Random Mode EMAS) uchun tartibni saqlaymiz
-    filtered = filtered.sort((a, b) => a.id - b.id).map(q => ({...q}));
+  // Barcha bo'limlarda va variantlarda savollarni aralashtiramiz (ketma-ket kelib qolmasligi uchun)
+  const questionsToShuffle = filtered.map(q => ({...q}));
+  const rngOrder = createLCG((variantId * 77777) + (startId * 123));
+  for (let i = questionsToShuffle.length - 1; i > 0; i--) {
+    const j = Math.floor(rngOrder() * (i + 1));
+    [questionsToShuffle[i], questionsToShuffle[j]] = [questionsToShuffle[j], questionsToShuffle[i]];
   }
+  filtered = questionsToShuffle;
 
   // LIMIT LOGIC: Agar limit berilgan bo'lsa va ro'yxat uzunroq bo'lsa, kesib olamiz
   if (limit && filtered.length > limit) {
